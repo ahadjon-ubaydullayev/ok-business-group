@@ -4,7 +4,7 @@ from register.views import index, export_candidates
 
 urlpatterns = [
     path('api/', index, name='handler'),
-    path("", export_candidates, name="export-candidates")
+    path("excel/", export_candidates, name="export-candidates")
   
    
 ]
