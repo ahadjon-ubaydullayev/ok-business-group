@@ -79,7 +79,7 @@ def register(message):
             bot.send_message(message.from_user.id, "Siz allaqachon ro'yxatdan o'tgansiz.")
     elif message.text == "Excelga import qilish":
         b = types.InlineKeyboardMarkup()
-        btn = types.InlineKeyboardButton("Faylni yuklash.", url="https://ok-business.herokuapp.com/register")
+        btn = types.InlineKeyboardButton("Faylni yuklash.", url="https://ok-business.herokuapp.com/register/excel")
         b.add(btn)
         bot.send_message(message.from_user.id, "Excel faylni yuklash uchun quyidagi tugmani bosing.", reply_markup=b)
         
