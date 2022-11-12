@@ -68,7 +68,8 @@ def register(message):
             bot.send_message(message.from_user.id, "Qaysi e'lon orqali bizni topdingiz?", reply_markup=ads_markup)
         else:
             bot.send_message(message.from_user.id, "Siz allaqachon ro'yxatdan o'tgansiz.")
-        
+    elif message.text == "Excelga import qilish":
+        bot.send_message(message.from_user.id, text="<a href='https://ok-business.herokuapp.com/register'>Import qilish</a>",parse_mode=ParseMode.HTML)  
     elif message.text == 'Orqaga ↩️':
         client = Candidate.objects.filter(user_id=message.from_user.id, on_process=True).last()
         client.step -= 1
