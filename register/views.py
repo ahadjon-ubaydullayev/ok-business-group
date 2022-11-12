@@ -8,9 +8,11 @@ import logging
 from .models import *
 import xlwt
 import datetime
+from pyrogram.raw.types import KeyboardButtonUrl
 
 logger = telebot.logger
 # https://ok-business.herokuapp.com/register 
+# https://api.telegram.org/bot5438036163:AAEZVa8ils-KkBQn6pxw-QboPEdttz9Mows/setWebhook?url=https://okk-business.herokuapp.com/register/api/
 bot = telebot.TeleBot("5438036163:AAEZVa8ils-KkBQn6pxw-QboPEdttz9Mows") 
 @csrf_exempt
 def index(request):
@@ -27,28 +29,35 @@ def index(request):
 
 @bot.message_handler(commands=['start'])
 def greeting(message):  
-    print("hello")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn1 = types.KeyboardButton("Ro'yxatdan o'tish")
-    btn_excel = types.KeyboardButton("Excelga import qilish")
-    markup.add(btn1, btn_excel)
+    markup.add(btn1)
     if len(BotUser.objects.filter(user_id=message.from_user.id)) == 0:
         bot_user = BotUser.objects.create(
             user_id=message.from_user.id,
-            first_name=message.from_user.username
+            first_name=message.from_user.username,
+            permission='candidate',
             )
         bot_user.save()
-    bot.send_message(message.from_user.id,
+        bot.send_message(message.from_user.id,
                   f'Assalomu alaykum {message.from_user.username}.\nBotga xush kelibsiz.\nBu yerda siz OK Business Group kompaniyasida ishlash uchun ariza qoldirishingi mumkin.',reply_markup=markup)
-
-
+    elif len(BotUser.objects.filter(user_id=message.from_user.id, permission="candidate")) > 0:
+        bot.send_message(message.from_user.id,
+                  f'Assalomu alaykum {message.from_user.username}.\nBotga xush kelibsiz.\nBu yerda siz OK Business Group kompaniyasida ishlash uchun ariza qoldirishingi mumkin.',reply_markup=markup)
+    else:     
+        bot_user = BotUser.objects.get(user_id=message.from_user.id)   
+        if bot_user.permission == "admin":
+            admin = types.ReplyKeyboardMarkup(resize_keyboard=True)
+            btn_excel = types.KeyboardButton("Excelga import qilish")
+            admin.add(btn_excel)
+            bot.send_message(message.from_user.id, f"Salom {message.from_user.first_name}.\nBu yerda siz mavjud arizalarni yuklab olishingiz mumkin.", reply_markup=admin)
+    
+    
 @bot.message_handler(func=lambda message: True)
 def register(message):
-    # bot_user = BotUser.objects.get(user_id=message.from_user.id)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn1 = types.KeyboardButton("Ro'yxatdan o'tish")
-    btn_excel = types.KeyboardButton("Excelga import qilish")
-    markup.add(btn1, btn_excel)
+    markup.add(btn1)
     ads_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
     ads_1 = types.KeyboardButton("OLX")
     ads_2 = types.KeyboardButton("Telegram")
@@ -69,7 +78,11 @@ def register(message):
         else:
             bot.send_message(message.from_user.id, "Siz allaqachon ro'yxatdan o'tgansiz.")
     elif message.text == "Excelga import qilish":
-        bot.send_message(message.from_user.id, text="<a href='https://ok-business.herokuapp.com/register'>Import qilish</a>",parse_mode=ParseMode.HTML)  
+        b = types.InlineKeyboardMarkup()
+        btn = types.InlineKeyboardButton("Faylni yuklash.", url="https://ok-business.herokuapp.com/register")
+        b.add(btn)
+        bot.send_message(message.from_user.id, "Excel faylni yuklash uchun quyidagi tugmani bosing.", reply_markup=b)
+        
     elif message.text == 'Orqaga ↩️':
         client = Candidate.objects.filter(user_id=message.from_user.id, on_process=True).last()
         client.step -= 1
