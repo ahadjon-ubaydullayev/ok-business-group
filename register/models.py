@@ -1,6 +1,5 @@
 from django.db import models
-from gsheets import mixins
-from uuid import uuid4
+
 
 
 class BotUser(models.Model):
@@ -16,7 +15,7 @@ class BotUser(models.Model):
 		return self.first_name
 
 
-class Candidate(mixins.SheetSyncableMixin, models.Model):
+class Candidate(models.Model):
 	user_id = models.CharField(max_length=255, blank=True, null=True)
 	fullname = models.CharField(max_length=255, blank=True, null=True)
 	age = models.CharField(max_length=10, blank=True, null=True)
