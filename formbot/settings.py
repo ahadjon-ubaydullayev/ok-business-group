@@ -25,7 +25,7 @@ SECRET_KEY = 'ub#y+9rf*(&l-b352t=155q6*+8g)p!7n66(=f&y_z^nflr!o&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ok-business.herokuapp.com', 'fded-37-110-214-236.ngrok.io','127.0.0.1']
+ALLOWED_HOSTS = ['ok-business.herokuapp.com', '9156-84-54-78-138.ngrok.io','127.0.0.1']
 
 
 # Application definition

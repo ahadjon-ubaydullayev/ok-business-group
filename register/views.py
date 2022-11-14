@@ -8,12 +8,14 @@ import logging
 from .models import *
 import xlwt
 import datetime
-from pyrogram.raw.types import KeyboardButtonUrl
+
 
 logger = telebot.logger
 # https://ok-business.herokuapp.com/register 
 # https://api.telegram.org/bot5438036163:AAEZVa8ils-KkBQn6pxw-QboPEdttz9Mows/setWebhook?url=https://okk-business.herokuapp.com/register/api/
 bot = telebot.TeleBot("5438036163:AAEZVa8ils-KkBQn6pxw-QboPEdttz9Mows") 
+# bot = telebot.TeleBot("5030280895:AAEhFHbB1DpjesuvuAK8UG-YP-1TJqyulRg") #test token
+
 @csrf_exempt
 def index(request):
     if request.method == 'GET':
@@ -41,7 +43,8 @@ def greeting(message):
         bot_user.save()
         bot.send_message(message.from_user.id,
                   f'Assalomu alaykum {message.from_user.username}.\nBotga xush kelibsiz.\nBu yerda siz OK Business Group kompaniyasida ishlash uchun ariza qoldirishingi mumkin.',reply_markup=markup)
-    elif len(BotUser.objects.filter(user_id=message.from_user.id, permission="candidate")) > 0:
+    elif len(BotUser.objects.filter(user_id=message.from_user.id, permission='candidate')) > 0:
+        # print(BotUser.objects.filter(user_id=message.from_user.id, permission='candidate'))
         bot.send_message(message.from_user.id,
                   f'Assalomu alaykum {message.from_user.username}.\nBotga xush kelibsiz.\nBu yerda siz OK Business Group kompaniyasida ishlash uchun ariza qoldirishingi mumkin.',reply_markup=markup)
     else:     
@@ -70,7 +73,6 @@ def register(message):
             client = Candidate.objects.create(
                 user_id=message.from_user.id,
                 fullname=message.from_user.first_name)
-            print(client)
             client.step = 1
             client.on_process = True
             client.save()
@@ -236,7 +238,7 @@ def register(message):
             client.save()
             bot.send_message(message.from_user.id, "Ro'yxatdan o'tish yakunlandi.")
             bot.send_message(message.from_user.id, "Iltimos, ma'lumotlaringiz to'g'riligini tekshirib chiqing.")
-            bot.send_message(message.from_user.id, f"Bizni qaysi manba orqali topdingiz: {client.ads_type}\nF.I.SH: {client.fullname}\nYoshi: {client.age}\nTelefon raqami: {client.contact_number}\nYashash manzili: {client.address}\nMa'lumotingiz: {client.education}\nIlk mablag'ingizni ishlab topgan yoshingiz: {client.first_salary}\nAvvalgi ish joyi: {client.ex_workplace}\nIshdan tashqari mashg'ulotlari: {client.leisure_activities}\nHayotingizda nimalar bilan faxrlanasiz, ehtiyojlardan ortiq nimalar qilgansiz: {client.achievements}\nAvvalgi ish joyingizdagi maoshingiz: {client.ex_salary}\nQancha maoshli ish izlayapsiz: {client.expected_salary}\nQancha maoshdan boshlashga tayyorsiz: {client.start_salary}\nNima deb o'ylaysiz kompaniya nima uchun pul to'laydi: {client.salary_factor}\nAytingchi qanday xodimni eng zo'r kadr deyish mumkin: {client.best_employee}\nOilaviy holatingiz qanday: {client.marital_status}\nKitob o'qiysizmi: {client.book}\nZararli odatlaringiz bormi: {client.bad_habit}\nAvvalgi ishingizda qanday yuqori natijalarga erishgansiz: {client.work_achievements}\nQanchalik tez ish boshlay olasiz: {client.ready_to_start}", reply_markup=markup_confirm)
+            bot.send_message(message.from_user.id, f"Bizni qaysi manba orqali topdingiz: {client.ads_type}\nFISH: {client.fullname}\nYoshi: {client.age}\nTelefon raqami: {client.contact_number}\nYashash manzili: {client.address}\nMa'lumotingiz: {client.education}\nIlk mablag'ingizni ishlab topgan yoshingiz: {client.first_salary}\nAvvalgi ish joyi: {client.ex_workplace}\nIshdan tashqari mashg'ulotlari: {client.leisure_activities}\nHayotingizda nimalar bilan faxrlanasiz, ehtiyojlardan ortiq nimalar qilgansiz: {client.achievements}\nAvvalgi ish joyingizdagi maoshingiz: {client.ex_salary}\nQancha maoshli ish izlayapsiz: {client.expected_salary}\nQancha maoshdan boshlashga tayyorsiz: {client.start_salary}\nNima deb o'ylaysiz kompaniya nima uchun pul to'laydi: {client.salary_factor}\nAytingchi qanday xodimni eng zo'r kadr deyish mumkin: {client.best_employee}\nOilaviy holatingiz qanday: {client.marital_status}\nKitob o'qiysizmi: {client.book}\nZararli odatlaringiz bormi: {client.bad_habit}\nAvvalgi ishingizda qanday yuqori natijalarga erishgansiz: {client.work_achievements}\nQanchalik tez ish boshlay olasiz: {client.ready_to_start}", reply_markup=markup_confirm)
 
 
 def cancel_func(message):
@@ -299,16 +301,11 @@ def cancel_func(message):
 def export_candidates(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="arizalar.xls"'
-
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Arizalar') # this will make a sheet named Users Data
-
-    # Sheet header, first row
+    ws = wb.add_sheet('Arizalar')
     row_num = 0
-
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
-
     columns = [ 
                 'Biz qanday topgan',
                 'FISH', 
@@ -331,13 +328,9 @@ def export_candidates(request):
                 "Ishdagi yutuqlari", 
                 "Ishni qanchada boshlay oladi",
                 "Ariza to'ldirgan sana"]
-
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style) # at 0 row 0 column 
-
-    # Sheet body, remaining rows
     font_style = xlwt.XFStyle()
-
     rows = Candidate.objects.all().values_list(
         'ads_type',
         'fullname', 
@@ -365,13 +358,8 @@ def export_candidates(request):
         row_num += 1
         for col_num in range(len(row)):
             ws.write(row_num, col_num, row[col_num], font_style)
-
     wb.save(response)
-
     return response
 
-
-
 bot.polling()
-
 telebot.logger.setLevel(logging.DEBUG)
